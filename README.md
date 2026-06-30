@@ -88,7 +88,7 @@ render.yaml       deploy config (build from repo)
 
 ## Running it
 
-Full instructions in [`docs/`](docs/). In short:
+In short:
 
 **Database:** apply `service/migrations/0001_init.sql` to a Postgres instance, then
 `python scripts/import_catalog.py catalog.xlsx "<connection-string>"`.
