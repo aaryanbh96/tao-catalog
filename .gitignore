@@ -1,0 +1,14 @@
+# Rust
+/service/target
+**/*.rs.bk
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Secrets — never commit connection strings
+.env
+*.env
+# Data backups
+*.bak
+db_url.txt
+catalog.xlsx
