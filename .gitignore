@@ -1,0 +1,21 @@
+# Rust
+/service/target
+**/*.rs.bk
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Secrets — never commit connection strings
+.env
+*.env
+# Data backups
+*.bak
+
+# service env + db url
+.env
+service/.env
+db_url.txt
+
+# Node / Tauri
+app/node_modules/
+app/src-tauri/target/

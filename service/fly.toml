@@ -1,0 +1,17 @@
+# Fly.io config for the Tao of Tea catalog service.
+# Edit `app` to a unique name if "tao-catalog" is taken (fly will tell you).
+app = "tao-catalog-service"
+primary_region = "iad"   # change to a region near you: lhr (London), fra (Frankfurt), sjc (California), etc.
+
+[build]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false    # keep it always-on (no cold-start delay)
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

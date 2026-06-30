@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tao of Tea Catalog</title>
+<style>
+  :root{
+    --bg:#f7f5ef; --panel:#fffdf8; --panel2:#f0ede3; --line:#e0dccf; --line2:#ebe7db;
+    --ink:#22302a; --mut:#7a857b; --leaf:#3f7a52; --warn:#b9792a; --bad:#c0503f; --chip:#eef0e8;
+  }
+  [data-theme="dark"]{
+    --bg:#0f1511; --panel:#161e18; --panel2:#1b241e; --line:#2a3530; --line2:#1f2823;
+    --ink:#e8ede9; --mut:#8a978f; --leaf:#6fae7d; --warn:#e0a458; --bad:#e07a6e; --chip:#1d2620;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;font-size:14px;transition:background .25s,color .25s}
+  header{padding:20px 28px 16px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  h1{font-family:Georgia,serif;font-weight:600;font-size:22px;margin:0}
+  h1 .mark{color:var(--leaf)}
+  .sub{color:var(--mut);font-size:12.5px}
+  .theme-toggle{margin-left:auto;background:var(--panel);border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:7px 13px;font-size:12.5px;cursor:pointer}
+  .theme-toggle:hover{color:var(--ink);border-color:var(--leaf)}
+  .wrap{padding:18px 28px 60px}
+  .conn{padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:12.5px}
+  .conn.ok{background:rgba(63,122,82,.1);color:var(--leaf);border:1px solid var(--line)}
+  .conn.bad{background:rgba(192,80,63,.12);color:var(--bad);border:1px solid var(--bad)}
+  .tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+  .tab{padding:9px 16px;cursor:pointer;color:var(--mut);font-size:13.5px;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab:hover{color:var(--ink)} .tab.active{color:var(--ink);border-bottom-color:var(--leaf)}
+  .tab .pill{background:var(--warn);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:6px}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .stat{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:12px 16px;min-width:110px}
+  .stat .n{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+  .stat .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+  .stat.bad .n{color:var(--bad)} .stat.warn .n{color:var(--warn)}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  input[type=text],select{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 12px;font-size:13.5px;font-family:inherit}
+  input[type=text]{flex:1;min-width:200px} select{cursor:pointer}
+  button.action{background:var(--leaf);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+  button.action:hover{opacity:.9}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 12px;color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px solid var(--line2);vertical-align:middle}
+  .parent-row{cursor:pointer} .parent-row:hover td{background:var(--panel)} .parent-row td{font-weight:500}
+  .twist{display:inline-block;width:14px;color:var(--mut)}
+  .var-row td{background:var(--panel2);font-size:12.5px}
+  .var-row .vname{padding-left:30px;color:var(--mut)}
+  .name a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+  .name a:hover{border-color:var(--leaf)}
+  .price{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+  .badge.in{background:rgba(63,122,82,.14);color:var(--leaf)}
+  .badge.out{background:rgba(192,80,63,.14);color:var(--bad)}
+  .badge.partial{background:rgba(185,121,42,.16);color:var(--warn)}
+  .badge.unknown,.badge.disc{background:rgba(122,133,123,.16);color:var(--mut)}
+  .chip{display:inline-block;padding:2px 8px;border-radius:6px;background:var(--chip);color:var(--mut);font-size:11px}
+  select.stock-sel{padding:4px 8px;font-size:12px}
+  button.mini{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer}
+  button.mini:hover{border-color:var(--leaf);color:var(--leaf)}
+  .count{color:var(--mut);font-size:12.5px;margin-left:auto}
+  .empty{text-align:center;padding:60px 20px;color:var(--mut)}
+  .hint{background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--warn);border-radius:8px;padding:12px 16px;margin-bottom:16px;color:var(--mut);font-size:12.5px;line-height:1.5}
+  footer{padding:24px 28px 36px;border-top:1px solid var(--line);color:var(--mut);font-size:12px;text-align:center}
+  footer b{color:var(--leaf)}
+  dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);padding:0;max-width:520px;width:90%}
+  dialog::backdrop{background:rgba(0,0,0,.4)}
+  .dlg-body{padding:22px 24px}
+  .dlg-body h3{margin:0 0 14px;font-family:Georgia,serif}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;color:var(--mut);margin-bottom:4px}
+  .field input,.field select{width:100%}
+  .dlg-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+  .var-edit{display:grid;grid-template-columns:1fr 1fr 90px;gap:6px;margin-bottom:6px}
+  .var-edit input{font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="mark">◆</span> Tao of Tea Catalog</h1>
+  <span class="sub" id="sub">connecting…</span>
+  <button class="theme-toggle" id="themeToggle">Dark</button>
+</header>
+<div class="wrap">
+  <div id="conn" class="conn ok" style="display:none"></div>
+
+  <div class="tabs">
+    <div class="tab active" data-view="catalog">Catalog</div>
+    <div class="tab" data-view="queue">Needs update <span class="pill" id="qpill" style="display:none">0</span></div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="controls">
+    <input type="text" id="q" placeholder="Search name, SKU, variation…">
+    <select id="fStock">
+      <option value="">All stock</option>
+      <option>In Stock</option><option>Out of Stock</option><option>Partial</option>
+    </select>
+    <button class="action" id="addBtn">+ Add product</button>
+    <span class="count" id="count"></span>
+  </div>
+  <div id="queueHint" class="hint" style="display:none">
+    These were marked out of stock here but the website isn't updated yet. Update each on the
+    website, then click <b>Mark done</b>.
+  </div>
+  <table><thead><tr id="head"></tr></thead><tbody id="body"></tbody></table>
+  <div class="empty" id="empty" style="display:none"></div>
+</div>
+<footer>Tao of Tea Catalog · made by <b>Aryan Bhardwaj</b> for the Tao of Tea</footer>
+
+<dialog id="addDlg"><div class="dlg-body">
+  <h3>Add product</h3>
+  <div class="field"><label>Product name</label><input type="text" id="np_name"></div>
+  <div class="field"><label>Parent SKU</label><input type="text" id="np_sku"></div>
+  <div class="field"><label>Category</label>
+    <select id="np_cat"><option>Tea</option><option>Teaware</option><option>Accessories</option><option>Gift Sets</option><option>Other</option></select>
+  </div>
+  <div class="field"><label>Variations (name, SKU, price)</label><div id="np_vars"></div>
+    <button class="mini" id="np_addvar" type="button">+ add variation</button></div>
+  <div class="dlg-actions">
+    <button class="mini" id="np_cancel" type="button">Cancel</button>
+    <button class="action" id="np_save" type="button">Save product</button>
+  </div>
+</div></dialog>
+
+<script>
+// ---- config: where the service lives ----
+const API = "http://localhost:8080";
+
+const $=s=>document.querySelector(s);
+let PRODUCTS=[], view='catalog', open=new Set(), varCache={};
+
+// theme
+let theme='light';
+$('#themeToggle').onclick=()=>{theme=theme==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',theme);
+  $('#themeToggle').textContent=theme==='light'?'Dark':'Light';};
+
+async function api(path, opts){
+  const r=await fetch(API+path, opts);
+  if(!r.ok){const t=await r.text();throw new Error(`${r.status}: ${t}`);}
+  return r.status===204?null:r.json();
+}
+
+async function loadAll(){
+  try{
+    PRODUCTS=await api('/products');
+    $('#sub').textContent=`${PRODUCTS.length} products · connected`;
+    $('#conn').style.display='none';
+    render();
+  }catch(e){
+    $('#sub').textContent='not connected';
+    const c=$('#conn'); c.style.display='block'; c.className='conn bad';
+    c.innerHTML=`Can't reach the service at ${API}. Make sure it's running (<code>cargo run</code>). <br>Details: ${e.message}`;
+  }
+}
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); view=t.dataset.view; render();
+});
+['q','fStock'].forEach(id=>$('#'+id).addEventListener('input',render));
+
+function badge(s){
+  const m={'In Stock':'in','Out of Stock':'out','Partial':'partial','Unknown':'unknown','Discontinued':'disc'};
+  return `<span class="badge ${m[s]||'unknown'}">${s}</span>`;
+}
+
+function render(){ view==='queue'?renderQueue():renderCatalog(); renderStats(); }
+
+function renderStats(){
+  const oos=PRODUCTS.filter(p=>p.rollup_stock==='Out of Stock').length;
+  const part=PRODUCTS.filter(p=>p.rollup_stock==='Partial').length;
+  const units=PRODUCTS.reduce((a,p)=>a+Number(p.variation_count),0);
+  $('#stats').innerHTML=`
+    <div class="stat"><div class="n">${PRODUCTS.length}</div><div class="l">Products</div></div>
+    <div class="stat"><div class="n">${units}</div><div class="l">Sellable units</div></div>
+    <div class="stat bad"><div class="n">${oos}</div><div class="l">Fully OOS</div></div>
+    <div class="stat warn"><div class="n">${part}</div><div class="l">Partial</div></div>`;
+}
+
+function renderCatalog(){
+  $('#queueHint').style.display='none'; $('#fStock').style.display='';
+  $('#head').innerHTML=['','Product','SKU','Category','Stock','Units',''].map(h=>`<th>${h}</th>`).join('');
+  const q=$('#q').value.toLowerCase(), fs=$('#fStock').value;
+  let list=PRODUCTS.filter(p=>{
+    if(fs&&p.rollup_stock!==fs)return false;
+    if(q&&!(p.name+' '+p.parent_sku).toLowerCase().includes(q))return false;
+    return true;
+  });
+  const body=$('#body'); body.innerHTML='';
+  list.forEach((p,i)=>{
+    const single=Number(p.variation_count)===1, isOpen=open.has(p.id);
+    let html=`<tr class="parent-row" data-i="${i}">
+      <td><span class="twist">${single?'':(isOpen?'▼':'▶')}</span></td>
+      <td class="name">${p.url?`<a href="${p.url}" target="_blank" onclick="event.stopPropagation()">${p.name}</a>`:p.name}</td>
+      <td><span class="chip">${p.parent_sku}</span></td>
+      <td>${p.category}</td>
+      <td>${badge(p.rollup_stock)}</td>
+      <td>${single?'1':p.variation_count+' variations'}</td>
+      <td><button class="mini" onclick="event.stopPropagation();archiveProduct(${p.id},'${p.name.replace(/'/g,"\\'")}')">Archive</button></td>
+    </tr>`;
+    if(isOpen && varCache[p.id]){
+      varCache[p.id].forEach(v=>{
+        html+=`<tr class="var-row"><td></td>
+          <td class="vname">↳ ${v.variation_name}</td>
+          <td><span class="chip">${v.variation_sku}</span></td>
+          <td class="price">${v.price!=null?'$'+Number(v.price).toFixed(2):'—'}</td>
+          <td><select class="stock-sel" onchange="changeStock(${v.id},this.value)">
+            ${['In Stock','Out of Stock','Discontinued','Unknown'].map(o=>`<option ${o===v.stock?'selected':''}>${o}</option>`).join('')}
+          </select></td>
+          <td>${v.sync==='Needs update'?'<span class="badge partial">Needs update</span>':''}</td>
+          <td></td></tr>`;
+      });
+    }
+    body.insertAdjacentHTML('beforeend',html);
+  });
+  body.querySelectorAll('.parent-row').forEach(tr=>tr.onclick=async()=>{
+    const p=list[+tr.dataset.i]; if(Number(p.variation_count)===1 && !varCache[p.id]){/* still allow */}
+    if(open.has(p.id)){open.delete(p.id);} else {open.add(p.id); if(!varCache[p.id])varCache[p.id]=await api(`/products/${p.id}/variations`);}
+    renderCatalog();
+  });
+  $('#empty').style.display=list.length?'none':'block';
+  if(!list.length)$('#empty').textContent='No products match.';
+  $('#count').textContent=`${list.length} of ${PRODUCTS.length} products`;
+  refreshQueuePill();
+}
+
+async function changeStock(varId, value){
+  try{
+    await api(`/variations/${varId}/stock`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({stock:value})});
+    // refresh affected product's variations + the products list (rollup may change)
+    for(const pid in varCache){ if(varCache[pid].some(v=>v.id===varId)) varCache[pid]=await api(`/products/${pid}/variations`); }
+    PRODUCTS=await api('/products'); render();
+  }catch(e){ alert('Could not update stock: '+e.message); }
+}
+
+async function archiveProduct(id,name){
+  if(!confirm(`Archive "${name}"? It will be hidden but not deleted.`))return;
+  try{ await api(`/products/${id}`,{method:'DELETE'}); open.delete(id); delete varCache[id]; PRODUCTS=await api('/products'); render(); }
+  catch(e){ alert('Could not archive: '+e.message); }
+}
+
+async function renderQueue(){
+  $('#queueHint').style.display='block'; $('#fStock').style.display='none';
+  $('#head').innerHTML=['Product','Variation','SKU','Stock','Website',''].map(h=>`<th>${h}</th>`).join('');
+  let rows=await api('/queue');
+  const q=$('#q').value.toLowerCase();
+  if(q)rows=rows.filter(r=>(r.product_name+' '+r.variation_name+' '+r.variation_sku).toLowerCase().includes(q));
+  $('#body').innerHTML=rows.map(r=>`<tr>
+    <td class="name">${r.url?`<a href="${r.url}" target="_blank">${r.product_name}</a>`:r.product_name}</td>
+    <td>${r.variation_name}</td><td><span class="chip">${r.variation_sku}</span></td>
+    <td>${badge(r.stock)}</td><td>${r.web_status}</td>
+    <td><button class="mini" onclick="markDone(${r.variation_id})">Mark done</button></td></tr>`).join('');
+  $('#empty').style.display=rows.length?'none':'block';
+  if(!rows.length)$('#empty').textContent='Nothing pending — sheet and website are in sync. ✓';
+  $('#count').textContent=`${rows.length} pending`;
+}
+
+async function markDone(varId){
+  try{ await api(`/variations/${varId}/synced`,{method:'POST'}); renderQueue(); refreshQueuePill(); }
+  catch(e){ alert('Could not mark done: '+e.message); }
+}
+
+async function refreshQueuePill(){
+  try{ const q=await api('/queue'); const pill=$('#qpill');
+    pill.style.display=q.length?'inline-block':'none'; pill.textContent=q.length;
+  }catch{}
+}
+
+// ---- add product dialog ----
+const dlg=$('#addDlg');
+function addVarRow(){
+  const d=document.createElement('div'); d.className='var-edit';
+  d.innerHTML=`<input placeholder="Variation name" class="vn"><input placeholder="SKU" class="vs"><input placeholder="Price" class="vp" type="number" step="0.01">`;
+  $('#np_vars').appendChild(d);
+}
+$('#addBtn').onclick=()=>{ $('#np_name').value='';$('#np_sku').value='';$('#np_vars').innerHTML='';addVarRow();dlg.showModal(); };
+$('#np_addvar').onclick=addVarRow;
+$('#np_cancel').onclick=()=>dlg.close();
+$('#np_save').onclick=async()=>{
+  const vars=[...$('#np_vars').querySelectorAll('.var-edit')].map(d=>({
+    variation_sku:d.querySelector('.vs').value.trim(),
+    variation_name:d.querySelector('.vn').value.trim()||'Standard',
+    price:d.querySelector('.vp').value?Number(d.querySelector('.vp').value):null,
+  })).filter(v=>v.variation_sku);
+  const body={parent_sku:$('#np_sku').value.trim(),name:$('#np_name').value.trim(),category:$('#np_cat').value,variations:vars};
+  if(!body.parent_sku||!body.name||!vars.length){alert('Need a name, parent SKU, and at least one variation with a SKU.');return;}
+  try{ await api('/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    dlg.close(); PRODUCTS=await api('/products'); render();
+  }catch(e){ alert('Could not add product: '+e.message); }
+}
+
+loadAll();
+</script>
+</body>
+</html>

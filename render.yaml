@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: tao-catalog-service
+    runtime: docker
+    dockerfilePath: ./service/Dockerfile
+    dockerContext: ./service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # set manually in the Render dashboard (a secret)
+      - key: RUST_LOG
+        value: info
